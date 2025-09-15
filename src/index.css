@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-ocean-50: 240 249 255;
+    --color-ocean-100: 224 242 254;
+    --color-ocean-200: 186 230 253;
+    --color-ocean-300: 125 211 252;
+    --color-ocean-400: 56 189 248;
+    --color-ocean-500: 14 165 233;
+    --color-ocean-600: 2 132 199;
+    --color-ocean-700: 3 105 161;
+    --color-ocean-800: 7 89 133;
+    --color-ocean-900: 12 74 110;
+  }
+
+  .dark {
+    --color-ocean-50: 12 74 110;
+    --color-ocean-100: 7 89 133;
+    --color-ocean-200: 3 105 161;
+    --color-ocean-300: 2 132 199;
+    --color-ocean-400: 14 165 233;
+    --color-ocean-500: 56 189 248;
+    --color-ocean-600: 125 211 252;
+    --color-ocean-700: 186 230 253;
+    --color-ocean-800: 224 242 254;
+    --color-ocean-900: 240 249 255;
+  }
+}
+
+/* Force dark background everywhere */
+body {
+  background: #272757 !important;
+  color: #e5e7eb;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  background: #272757;
+}
+
+/* Infinite Slider Animations */
+@keyframes scroll-vertical {
+  to {
+    transform: translateY(calc(-50% - 0.5rem));
+  }
+}
+
+@keyframes scroll-horizontal {
+  to {
+    transform: translateX(calc(-50% - 0.5rem));
+  }
+}
+
+.animate-scroll-vertical {
+  animation: scroll-vertical 20s linear infinite;
+}
+
+.animate-scroll-horizontal {
+  animation: scroll-horizontal 20s linear infinite;
+}
+
+.animate-scroll-reverse {
+  animation-direction: reverse;
+}
+
+@layer components {
+  .ocean-gradient {
+    background: linear-gradient(135deg, rgb(var(--color-ocean-400)) 0%, rgb(var(--color-ocean-600)) 100%);
+  }
+  
+  .ocean-text-shadow {
+    text-shadow: 2px 2px 4px rgba(var(--color-ocean-600), 0.3);
+  }
+  
+  .ocean-card {
+    @apply bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-ocean-200 dark:border-ocean-700 shadow-xl;
+  }
+}
