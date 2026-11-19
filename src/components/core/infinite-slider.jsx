@@ -1,57 +1,29 @@
-"use client";
-import React, { useEffect, useRef } from "react";
+import React from 'react'
 
-export function InfiniteSlider({ children, direction = "horizontal", reverse = false }) {
-  const scrollerRef = useRef(null);
-  const scrollerInnerRef = useRef(null);
-
-  useEffect(() => {
-    if (!scrollerRef.current || !scrollerInnerRef.current) return;
-
-    const scrollerContent = Array.from(scrollerInnerRef.current.children);
-
-    const addAnimation = () => {
-      scrollerContent.forEach((item) => {
-        const duplicatedItem = item.cloneNode(true);
-        scrollerInnerRef.current.appendChild(duplicatedItem);
-      });
-    };
-
-    addAnimation();
-
-    return () => {
-      // Cleanup duplicated items
-      const items = Array.from(scrollerInnerRef.current.children);
-      items.slice(scrollerContent.length).forEach((item) => item.remove());
-    };
-  }, [children]);
-
-  const isVertical = direction === "vertical";
+// Vertical auto-scrolling column. Content is rendered twice and the track
+// moves by exactly half its height, so the loop has no visible jump.
+export function InfiniteSlider({ children, reverse = false, duration = 60, className = '' }) {
+  const items = React.Children.toArray(children)
 
   return (
     <div
-      ref={scrollerRef}
-      className={`scroller relative ${
-        isVertical ? "h-full" : "w-full"
-      } overflow-hidden`}
+      className={`marquee relative h-full overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,#000_8%,#000_92%,transparent)] ${className}`}
     >
       <div
-        ref={scrollerInnerRef}
-        className={`flex ${
-          isVertical ? "flex-col" : "flex-row"
-        } ${
-          reverse ? "animate-scroll-reverse" : "animate-scroll"
-        } ${
-          isVertical ? "animate-scroll-vertical" : "animate-scroll-horizontal"
-        }`}
+        className="marquee-track flex flex-col"
         style={{
-          "--animation-duration": "20s",
-          "--animation-direction": reverse ? "reverse" : "normal",
+          '--marquee-duration': `${duration}s`,
+          '--marquee-direction': reverse ? 'reverse' : 'normal',
         }}
       >
-        {children}
+        {[0, 1].map((copy) =>
+          items.map((child, i) => (
+            <div key={`${copy}-${i}`} className="pb-3 sm:pb-4" aria-hidden={copy === 1 || undefined}>
+              {child}
+            </div>
+          ))
+        )}
       </div>
     </div>
-  );
+  )
 }
-

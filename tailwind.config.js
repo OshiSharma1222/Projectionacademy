@@ -1,48 +1,40 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
       colors: {
-        'ocean': {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
+        // Taken from the logo: deep book blue (#184691) and ring sky blue (#1EA7E1)
+        brand: {
+          50: '#EEF4FC',
+          100: '#DCE8F8',
+          200: '#B9D1F1',
+          300: '#8AB2E6',
+          400: '#4F87D4',
+          500: '#2A66BE',
+          600: '#1D53A6',
+          700: '#184691',
+          800: '#143A78',
+          900: '#0F2C5C',
+          950: '#0A1E40',
         },
-        'sky': {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-        }
-      },
-      backgroundImage: {
-        'ocean-gradient': 'linear-gradient(to bottom right, var(--tw-gradient-stops))',
-      },
-      animation: {
-        'wave': 'wave 2s ease-in-out infinite',
+        accent: {
+          DEFAULT: '#1EA7E1',
+          light: '#E6F6FD',
+        },
       },
       keyframes: {
-        wave: {
-          '0%, 100%': { transform: 'rotate(0deg)' },
-          '25%': { transform: 'rotate(5deg)' },
-          '75%': { transform: 'rotate(-5deg)' },
-        }
-      }
+        'fade-in-up': {
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'fade-in-up': 'fade-in-up 0.35s ease-out',
+      },
     },
   },
   plugins: [],

@@ -1,283 +1,235 @@
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { CheckCircle, Instagram, Mail, MapPin, Phone, Send, Youtube } from 'lucide-react'
-import React, { useEffect, useRef, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { CheckCircle, Instagram, Loader2, Mail, MapPin, Phone, Send, Youtube } from 'lucide-react'
+import React, { useState } from 'react'
+import { Accent, Reveal, SectionHeader } from './ui/reveal'
 
-gsap.registerPlugin(ScrollTrigger)
+const contactItems = [
+  {
+    icon: MapPin,
+    label: 'Address',
+    content: (
+      <>
+        C7/247, Block C, Yamuna Vihar
+        <br />
+        Shahdara, New Delhi 110053
+      </>
+    ),
+  },
+  {
+    icon: Phone,
+    label: 'Phone',
+    content: (
+      <a href="tel:+919599740029" className="hover:text-brand-700">
+        +91 95997 40029
+      </a>
+    ),
+  },
+  {
+    icon: Mail,
+    label: 'Email',
+    content: (
+      <a href="mailto:academyprojection@gmail.com" className="break-all hover:text-brand-700">
+        academyprojection@gmail.com
+      </a>
+    ),
+  },
+]
+
+const socials = [
+  { icon: Instagram, label: 'Instagram', href: '#' },
+  { icon: Youtube, label: 'YouTube', href: '#' },
+]
 
 const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-
-  const sectionRef = useRef(null)
-  const formRef = useRef(null)
-  const infoRef = useRef(null)
-  const titleRef = useRef(null)
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Title with 3D rotation
-      gsap.fromTo(titleRef.current,
-        { opacity: 0, rotationX: -90, transformOrigin: "center bottom" },
-        {
-          opacity: 1,
-          rotationX: 0,
-          duration: 1.5,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: titleRef.current,
-            start: "top 80%",
-            toggleActions: "play none none reverse"
-          }
-        }
-      )
-
-      // Form with slide and scale animation
-      gsap.fromTo(formRef.current,
-        { opacity: 0, x: 100, scale: 0.8, rotationY: 45 },
-        {
-          opacity: 1,
-          x: 0,
-          scale: 1,
-          rotationY: 0,
-          duration: 1.2,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: formRef.current,
-            start: "top 70%",
-            toggleActions: "play none none reverse"
-          }
-        }
-      )
-
-      // Info with slide from opposite direction
-      gsap.fromTo(infoRef.current,
-        { opacity: 0, x: -100, scale: 0.8, rotationY: -45 },
-        {
-          opacity: 1,
-          x: 0,
-          scale: 1,
-          rotationY: 0,
-          duration: 1.2,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: infoRef.current,
-            start: "top 70%",
-            toggleActions: "play none none reverse"
-          },
-          delay: 0.2
-        }
-      )
-
-      // Floating animation for contact cards
-      gsap.to(infoRef.current?.children || [], {
-        y: "random(-10, 10)",
-        rotation: "random(-2, 2)",
-        duration: "random(3, 6)",
-        ease: "sine.inOut",
-        repeat: -1,
-        yoyo: true,
-        stagger: 0.5
-      })
-    }, sectionRef)
-
-    return () => ctx.revert()
-  }, [])
+  const [formData, setFormData] = useState({ name: '', email: '', message: '', company: '' })
+  const [status, setStatus] = useState('idle') // idle | submitting | sent | error
+  const [errorMessage, setErrorMessage] = useState('')
 
   const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
+    setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setIsSubmitting(true)
+    setStatus('submitting')
+
+    setErrorMessage('')
 
     try {
-      const { error } = await supabase
-        .from('contact_forms')
-        .insert([formData])
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(result.error || 'Request failed')
 
-      if (error) throw error
-
-      setIsSubmitted(true)
-      setFormData({ name: '', email: '', message: '' })
-      
-      // Reset success state after 3 seconds
-      setTimeout(() => {
-        setIsSubmitted(false)
-      }, 3000)
+      setStatus('sent')
+      setFormData({ name: '', email: '', message: '', company: '' })
+      setTimeout(() => setStatus('idle'), 5000)
     } catch (error) {
       console.error('Error submitting form:', error)
-      alert('There was an error submitting your message. Please try again.')
-    } finally {
-      setIsSubmitting(false)
+      setErrorMessage(error.message && error.message !== 'Failed to fetch' && error.message !== 'Request failed' ? error.message : '')
+      setStatus('error')
     }
   }
 
   return (
-    <section id="contact" ref={sectionRef} className="py-24 bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30">
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 ref={titleRef} className="text-5xl font-bold text-gray-800 mb-6">
-            Get In <span style={{ color: "#184691" }} className="italic">Touch</span>
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Ready to start your journey with <span style={{ color: "#184691" }} className="italic">Projection Academy </span> We'd love to hear from you!
-          </p>
-        </div>
+    <section id="contact" className="section bg-white">
+      <div className="container-page">
+        <SectionHeader
+          eyebrow="Contact"
+          title={
+            <>
+              Get in <Accent>touch</Accent>
+            </>
+          }
+          lead="Ready to start your journey with Projection Academy? Send us a message or give us a call."
+        />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 max-w-6xl mx-auto">
-          {/* Contact Info */}
-          <div ref={infoRef} className="space-y-8">
-            <div>
-              <h3 className="text-3xl font-bold text-gray-800 mb-8">Contact Information</h3>
-              
-              <div className="space-y-6">
-                <div className="group flex items-start space-x-4 p-4 rounded-2xl bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-300 hover:scale-105 hover:shadow-lg">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
-                    <MapPin className="w-7 h-7 text-white" />
+        <div className="mt-12 grid gap-8 lg:mt-16 lg:grid-cols-5 lg:gap-12">
+          {/* Contact info */}
+          <Reveal className="lg:col-span-2">
+            <ul className="space-y-3">
+              {contactItems.map(({ icon: Icon, label, content }) => (
+                <li key={label} className="card group flex items-start gap-4 p-4 sm:p-5">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-700 transition-colors duration-500 group-hover:bg-brand-700 group-hover:text-white">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-900">{label}</p>
+                    <p className="mt-1 leading-relaxed text-slate-600">{content}</p>
                   </div>
-                  <div>
-                    <h4 className="font-bold text-gray-800 mb-2 text-lg">Address</h4>
-                    <p className="text-gray-600 leading-relaxed">
-                    C7/247, Block C<br />
-                    Yamuna Vihar, Shahdara<br />
-                    New Delhi, Delhi, 110053
-                    </p>
-                  </div>
-                </div>
+                </li>
+              ))}
+            </ul>
 
-                <div className="group flex items-start space-x-4 p-4 rounded-2xl bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-300 hover:scale-105 hover:shadow-lg">
-                  <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
-                    <Phone className="w-7 h-7 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-gray-800 mb-2 text-lg">Phone</h4>
-                    <p className="text-gray-600 text-lg">+91 9599740029 </p>
-                  </div>
-                </div>
-
-                <div className="group flex items-start space-x-4 p-4 rounded-2xl bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-300 hover:scale-105 hover:shadow-lg">
-                  <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-violet-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
-                    <Mail className="w-7 h-7 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-gray-800 mb-2 text-lg">Email</h4>
-                    <p className="text-gray-600 text-lg">academyprojection@gmail.com</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Social Media */}
-            <div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-6">Follow Us</h3>
-              <div className="flex space-x-4">
-                {[
-                  { icon: Instagram, color: 'from-pink-600 to-purple-600', hoverColor: 'hover:from-pink-700 hover:to-purple-700' },
-                  { icon: Youtube, color: 'from-red-600 to-red-700', hoverColor: 'hover:from-red-700 hover:to-red-800' }
-                ].map((social, index) => (
+            <div className="mt-8">
+              <p className="text-sm font-semibold text-slate-900">Follow us</p>
+              <div className="mt-3 flex gap-3">
+                {socials.map(({ icon: Icon, label, href }) => (
                   <a
-                    key={index}
-                    href="#"
-                    className={`w-12 h-12 bg-gradient-to-br ${social.color} ${social.hoverColor} text-white rounded-xl flex items-center justify-center hover:scale-125 hover:rotate-12 transition-all duration-300 shadow-lg hover:shadow-xl`}
+                    key={label}
+                    href={href}
+                    aria-label={label}
+                    className="flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition-[transform,background-color,border-color,color] duration-500 hover:-translate-y-1 hover:border-brand-700 hover:bg-brand-700 hover:text-white"
                   >
-                    <social.icon className="w-6 h-6" />
+                    <Icon className="h-5 w-5" />
                   </a>
                 ))}
               </div>
             </div>
-          </div>
+          </Reveal>
 
-          {/* Contact Form */}
-          <form ref={formRef} onSubmit={handleSubmit} className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-gray-100 relative overflow-hidden">
-            {/* Background decoration */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 rounded-3xl"></div>
-            
-            <h3 className="relative text-3xl font-bold text-gray-800 mb-8 text-center">Send Us a Message</h3>
-            
-            <div className="relative space-y-6">
-              <div className="group">
-                <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Full Name
-                </label>
+          {/* Form */}
+          <Reveal delay={0.12} className="lg:col-span-3">
+            <form
+              onSubmit={handleSubmit}
+              className="relative rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_20px_50px_-30px_rgba(24,70,145,0.3)] sm:p-8"
+            >
+              <h3 className="text-xl font-bold text-slate-900 sm:text-2xl">Send us a message</h3>
+              <p className="mt-1 text-sm text-slate-600">Tell us a little about the student and we'll get back to you.</p>
+
+              {/* Honeypot for bots: hidden from people and screen readers */}
+              <div aria-hidden="true" className="pointer-events-none absolute left-0 top-0 h-px w-px overflow-hidden opacity-0">
+                <label htmlFor="company">Company</label>
                 <input
                   type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
+                  id="company"
+                  name="company"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={formData.company}
                   onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800 transition-all duration-300 hover:border-blue-400 focus:scale-105 backdrop-blur-sm"
-                  placeholder="Enter your full name"
                 />
               </div>
 
-              <div className="group">
-                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800 transition-all duration-300 hover:border-blue-400 focus:scale-105 backdrop-blur-sm"
-                  placeholder="Enter your email address"
-                />
+              <div className="mt-6 grid gap-5 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Full name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    autoComplete="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                    className="field"
+                    placeholder="Your name"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Email address
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    autoComplete="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    className="field"
+                    placeholder="you@example.com"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label htmlFor="message" className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Message
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    required
+                    rows={5}
+                    className="field resize-none"
+                    placeholder="Which class or course are you interested in?"
+                  />
+                </div>
               </div>
 
-              <div className="group">
-                <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleInputChange}
-                  required
-                  rows={4}
-                  className="w-full px-4 py-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800/50 dark:text-white transition-all duration-300 hover:border-blue-400 focus:scale-105 resize-none backdrop-blur-sm"
-                  placeholder="Tell us about your interests and goals..."
-                />
-              </div>
+              {status === 'error' && (
+                <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+                  {errorMessage || 'Something went wrong sending your message.'} You can also call us on +91 95997
+                  40029.
+                </p>
+              )}
+
+              {status === 'sent' && (
+                <p className="mt-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">
+                  Thanks! Your message has reached us and we'll get back to you soon.
+                </p>
+              )}
 
               <button
                 type="submit"
-                disabled={isSubmitting || isSubmitted}
-                className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-3 disabled:opacity-75 hover:scale-105 hover:shadow-xl transform-gpu"
+                disabled={status === 'submitting' || status === 'sent'}
+                className="btn-primary group mt-6 w-full"
               >
-                {isSubmitted ? (
+                {status === 'sent' ? (
                   <>
-                    <CheckCircle className="w-6 h-6" />
-                    <span>Message Sent!</span>
+                    <CheckCircle className="h-5 w-5" />
+                    Message sent
                   </>
-                ) : isSubmitting ? (
+                ) : status === 'submitting' ? (
                   <>
-                    <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full" />
-                    <span>Sending...</span>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Sending…
                   </>
                 ) : (
                   <>
-                    <Send className="w-6 h-6" />
-                    <span>Send Message</span>
+                    <Send className="h-4 w-4 transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                    Send message
                   </>
                 )}
               </button>
-            </div>
-          </form>
+            </form>
+          </Reveal>
         </div>
       </div>
     </section>

@@ -91,85 +91,84 @@ const Chatbot = () => {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50">
+    <div className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
       {/* Chat button */}
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg flex items-center justify-center transition-all duration-300"
+        aria-label={isOpen ? 'Close chat' : 'Open chat'}
+        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-brand-700 text-white shadow-lg shadow-brand-900/20 transition-[background-color,transform] duration-300 hover:scale-105 hover:bg-brand-800"
       >
-        {isOpen ? (
-          <X className="w-6 h-6" />
-        ) : (
-          <MessageCircle className="w-6 h-6" />
-        )}
+        {!isOpen && <span aria-hidden className="chat-pulse absolute inset-0 rounded-full bg-brand-500" />}
+        {isOpen ? <X className="relative h-6 w-6" /> : <MessageCircle className="relative h-6 w-6" />}
       </button>
-      
+
       {/* Chat container */}
       {isOpen && (
         <div
           ref={chatRef}
-          className="absolute bottom-20 right-0 w-80 sm:w-96 bg-white rounded-xl shadow-xl flex flex-col transition-all duration-500 animate-fade-in-up"
-          style={{ height: '500px', maxHeight: '80vh' }}
+          className="animate-fade-in-up fixed inset-x-3 bottom-24 flex h-[min(520px,calc(100dvh-8rem))] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-brand-900/15 sm:absolute sm:inset-x-auto sm:bottom-20 sm:right-0 sm:w-96"
         >
           {/* Chat header */}
-          <div className="bg-blue-600 text-white px-4 py-3 rounded-t-xl flex justify-between items-center">
-            <div>
-              <h3 className="font-bold">Projection Academy</h3>
-              <p className="text-xs opacity-80">Chat Assistant</p>
+          <div className="flex items-center justify-between bg-brand-700 px-4 py-3 text-white">
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
+                <img src="/images/projection logo-01.png" alt="" className="h-8 w-8 object-contain" />
+              </span>
+              <div>
+                <h3 className="text-sm font-bold">Projection Academy</h3>
+                <p className="text-xs text-brand-100">Quick answers</p>
+              </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-white hover:text-gray-200">
-              <ChevronDown className="w-5 h-5" />
+            <button
+              onClick={() => setIsOpen(false)}
+              aria-label="Minimise chat"
+              className="rounded-md p-1 text-brand-100 hover:bg-white/10 hover:text-white"
+            >
+              <ChevronDown className="h-5 w-5" />
             </button>
           </div>
-          
+
           {/* Messages */}
-          <div
-            ref={messagesRef}
-            className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"
-          >
+          <div ref={messagesRef} className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4">
             {messages.map(message => (
-              <div
-                key={message.id}
-                className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
-              >
+              <div key={message.id} className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}>
                 <div
-                  className={`rounded-lg px-4 py-2 max-w-[80%] ${
+                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                     message.isBot
-                      ? 'bg-gray-200 text-gray-800'
-                      : 'bg-blue-600 text-white'
+                      ? 'rounded-bl-md border border-slate-200 bg-white text-slate-700'
+                      : 'rounded-br-md bg-brand-700 text-white'
                   }`}
                 >
                   <p>{message.text}</p>
-                  <p className="text-xs opacity-70 mt-1">
-                    {message.timestamp.toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                  <p className={`mt-1 text-[11px] ${message.isBot ? 'text-slate-400' : 'text-brand-100'}`}>
+                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
               </div>
             ))}
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-gray-200 text-gray-800 rounded-lg px-4 py-2">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 rounded-full bg-gray-600 animate-pulse"></div>
-                    <div className="w-2 h-2 rounded-full bg-gray-600 animate-pulse delay-100"></div>
-                    <div className="w-2 h-2 rounded-full bg-gray-600 animate-pulse delay-200"></div>
-                  </div>
+                <div className="flex gap-1 rounded-2xl rounded-bl-md border border-slate-200 bg-white px-4 py-3">
+                  {[0, 150, 300].map(delay => (
+                    <span
+                      key={delay}
+                      className="h-2 w-2 animate-pulse rounded-full bg-slate-400"
+                      style={{ animationDelay: `${delay}ms` }}
+                    />
+                  ))}
                 </div>
               </div>
             )}
           </div>
-          
+
           {/* Quick reply options */}
-          <div className="p-3 bg-gray-100 border-t border-gray-200 flex flex-wrap gap-2 justify-center">
+          <div className="flex max-h-32 flex-wrap gap-2 overflow-y-auto border-t border-slate-200 bg-white p-3">
             {quickReplyOptions.map(option => (
               <button
                 key={option.id}
                 onClick={() => handleQuickReplyClick(option.id, option.text)}
-                className="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-full text-sm transition-colors"
+                className="rounded-full border border-brand-100 bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-800 transition-colors hover:border-brand-200 hover:bg-brand-100 sm:text-sm"
               >
                 {option.text}
               </button>

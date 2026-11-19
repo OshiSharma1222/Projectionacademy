@@ -1,63 +1,90 @@
+import { Mail, MapPin, Phone } from 'lucide-react'
 import React from 'react'
 import AchievementsAndStudents from './components/AchievementsAndStudents'
 import Chatbot from './components/Chatbot'
 import Contact from './components/Contact'
+import Hero from './components/Hero'
 import LearningApproach from './components/LearningApproach'
 import MenuBar from './components/MenuBar'
-import { GlowingStarsBackgroundCard } from './components/ui/glowing-stars'
+import Ticker from './components/Ticker'
 import YouTubeSection from './components/YouTubeSection'
-import { ThemeProvider } from './contexts/ThemeContext'
 
 function App() {
   return (
-    <ThemeProvider>
-      <div className="min-h-screen transition-colors duration-300 relative overflow-hidden" style={{ backgroundColor: '#272757' }}>
-        <GlowingStarsBackgroundCard className="absolute inset-0" />
-        <MenuBar />
-        
-        {/* Hero Section Image */}
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden z-10 px-2" 
-  style={{ backgroundColor: '#272757' }}
->
-  <img
-    src="/images/HEROSECTION.png"
-    alt="Hero Section"
-    className="w-[90%] h-auto object-contain rounded-lg"
-  />
+    <div id="top" className="min-h-screen overflow-x-hidden bg-white">
+      <MenuBar />
 
+      <main>
+        <Hero />
+        <Ticker />
 
-          {/* Removed color overlay for true image colors */}
-          <div className="absolute bottom-10 w-full flex justify-center z-10">
-            <a href="#contact" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-white/20 hover:border-white/40">
-              Contact Us
-            </a>
-          </div>
-        </section>
-        
         <AchievementsAndStudents />
         <LearningApproach />
         <YouTubeSection />
         <Contact />
-        <Chatbot />
-        
-        {/* Footer */}
-        <footer className="text-white py-16 relative overflow-hidden border-t border-[#2e2f5b]" style={{ backgroundColor: '#1f203f' }}>
-          <GlowingStarsBackgroundCard className="absolute inset-0" />
-          
-          <div className="container mx-auto px-6 text-center relative z-10">
-            <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-sky-400 bg-clip-text text-transparent">
-              Projection Academy
-            </h3>
-            <p className="text-blue-100 mb-8 text-lg max-w-2xl mx-auto leading-relaxed">
-              Transforming Dreams into Reality Through Excellence in Education
-            </p>
-            <div className="text-sm text-blue-200 border-t border-blue-600 pt-8">
-              © 2024 Projection Academy. All rights reserved. | Empowering Future Leaders
+      </main>
+
+      <footer className="bg-brand-900 text-brand-100">
+        <div className="container-page grid gap-10 py-12 sm:py-14 md:grid-cols-3">
+          <div>
+            <div className="flex items-center gap-3">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white">
+                <img src="/images/projection logo-01.png" alt="" className="h-11 w-11 object-contain" />
+              </span>
+              <span className="text-lg font-bold text-white">Projection Academy</span>
             </div>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-brand-200">
+              Igniting your brighter future. Coaching for JEE Main, Science and CBSE foundation.
+            </p>
           </div>
-        </footer>
-      </div>
-    </ThemeProvider>
+
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-white">Explore</h3>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {[
+                ['Results', 'achievements'],
+                ['Our approach', 'learning'],
+                ['Teaching', 'youtube'],
+                ['Contact', 'contact'],
+              ].map(([label, id]) => (
+                <li key={id}>
+                  <a href={`#${id}`} className="transition-colors hover:text-white">
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-white">Visit or call</h3>
+            <ul className="mt-4 space-y-3 text-sm">
+              <li className="flex gap-3">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                <span>C7/247, Block C, Yamuna Vihar, Shahdara, New Delhi 110053</span>
+              </li>
+              <li className="flex gap-3">
+                <Phone className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                <a href="tel:+919599740029" className="hover:text-white">+91 95997 40029</a>
+              </li>
+              <li className="flex gap-3">
+                <Mail className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                <a href="mailto:academyprojection@gmail.com" className="break-all hover:text-white">
+                  academyprojection@gmail.com
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="border-t border-white/10">
+          <p className="container-page py-5 text-center text-xs text-brand-300 sm:text-sm">
+            © {new Date().getFullYear()} Projection Academy. All rights reserved.
+          </p>
+        </div>
+      </footer>
+
+      <Chatbot />
+    </div>
   )
 }
 
